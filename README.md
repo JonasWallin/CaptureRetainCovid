@@ -81,5 +81,9 @@ Finns flera svagheter i modellen:
 * Det är medvetet att jag inte lägger till en modell som försöker prediktera antalelt döda givet hur många som dog dagan innan. Detta är för att undivka epidmologiska antaganden, men gör också att det kan skapas orimiliga resultat (se figur som inte tar hänsyn till helg effekt).
 * Finns ingen förändring av parameterna över tiden, om rapportering ändras kommer modellen inte längre vara vettig.
 * Finns säkert ytterligare koppling till rapportering och antalet döda. Man kan anta att om antalet döda dubblas så ändras sannolikheten att dom rapporteras detta gör förnävarande inte eftersom antalelt dödsfall ligger inom samma range.
+* Det finns säkert flera olika typer av dödsfall som t.ex. från sjukvård mot ålderdomshem. Detta tar modellen heller inte hänsyn till.
+* En Bayesiansk variant som tar hänsyn parameter osäkerheten hade nog inte skadat heller.
+
+ 
 ### data och kod
 Datan är tagen från folkhälsomyndigeten, och koden för att samla in den plus skapande av figurer är tagen från [https://github.com/adamaltmejd/covid](https://github.com/adamaltmejd/covid)
