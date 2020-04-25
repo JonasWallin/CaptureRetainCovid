@@ -75,3 +75,5 @@ Utan helg effekt:
 Med helg effekt:
 ![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_14_2020-04-24bM.jpeg)
 
+### data och kod
+Datan är tagen från folkhälsomyndigeten, och koden för att samla in den plus skapande av figurer är tagen från [https://github.com/adamaltmejd/covid](https://github.com/adamaltmejd/covid)
