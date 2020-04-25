@@ -5,7 +5,7 @@
 
 source('util.r')
 source('stolen_function.R')
-Predict.day = 14 #must be less then N
+Predict.day = 13 #must be less then N
 
 
 load("result.RData")
