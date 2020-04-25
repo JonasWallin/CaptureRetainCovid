@@ -38,6 +38,7 @@ Det är lätt att se att antalet nya fall som rapporterats är mycket färre på
 ``` r
 P[j] = 1/(1+ exp(- beta[j] + beta.helg * helg))
 ``` 
+Denna modell skattas i filen *MultinomialLogit.R*.
 
 
 
@@ -51,6 +52,9 @@ beta_j  = exp(- beta[j]   + beta.helg * helg)
 # (dij, nij)| P_j    ~  dbin( dij, nij,  P_j)
 ``` 
 
+Denna modell skattas i filen *MultinomialBeta.R*.
+
+
 
 ## Result
 Om vi skattar antalet döda efter 14 dagar får vi följande resultat
@@ -62,4 +66,12 @@ Om vi skattar antalet döda efter 14 dagar får vi följande resultat
 | Multinomial  (helg) | -359.4901 | 15|
 | Multinomial   | -443.9738 | 13|
 
+
+## Prediction
+För att göra prediktion så använder jag profile liklihood på antalelt döda (uniform prior om Bayesian). 
 Man kan också se i prediktionerna varför helg att ta hänsyn till helg är mycket viktigt:
+Utan helg effekt:
+![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_14_2020-04-24bM_helgfri.jpeg)
+Med helg effekt:
+![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_14_2020-04-24bM.jpeg)
+
