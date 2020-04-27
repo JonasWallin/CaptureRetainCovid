@@ -19,20 +19,14 @@ data_ <- newDeaths(deaths_est,
 #remove the "future" data
 data_$death.remain[(N - Predict.day+1):N,] = NA
 data_$report.new[(N - Predict.day+1):N,] = NA
+
+
 ##
 # building covariate matrix
 ##
-X <- buildXdayeffect(N,Predict.day)
-#holidays and weekends
-holidays.Sweden <- as.Date(c("2020-04-10","2020-04-13"))
-result$dates_report <- as.Date(result$dates_report)
-holidays <- weekdays(result$dates_report)%in%c("Sunday","Saturday") |result$dates_report%in%c(holidays.Sweden)
+X <- setup_data(N, Predict.day, data_$dates_report)
 
-holidays.tommorow <- weekdays(result$dates_report + 1)%in%c("Sunday","Saturday") |
-  (result$dates_report+1)%in%c(holidays.Sweden)
-Xhol <- buildXholiday(holidays)
-Xhol.tommrow <- buildXholiday(holidays.tommorow)
-X <- cbind(X, Xhol,  Xhol.tommrow[,1]*X[,dim(X)[2]])
+
 loglikProb(rep(0,dim(X)[2]), data_$death.remain, data_$report.new, X)
 loglik <- function(x){-loglikProb(x, data_$death.remain, data_$report.new, X)$loglik}
 loglik.grad <- function(x){-loglikProb(x, data_$death.remain, data_$report.new, X)$grad}

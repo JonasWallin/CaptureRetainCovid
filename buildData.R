@@ -4,6 +4,7 @@
 
 require(Matrix)
 source("stolen_function.R")
+download_latest_fhm()
 path.to.files <- file.path("data", "FHM")
 fhm_files = list_fhm_files(folder = path.to.files)
 death_dts <- c()

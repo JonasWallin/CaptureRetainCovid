@@ -5,7 +5,8 @@
 
 source('util.r')
 source('stolen_function.R')
-Predict.day = 13 #must be less then N
+Predict.day = 10 #predicit up to day 
+unique.p    = 5
 
 
 load("result.RData")
@@ -22,17 +23,10 @@ data_$report.new[(N - Predict.day+1):N,] = NA
 ##
 # building covariate matrix
 ##
-X <- buildXdayeffect(N,Predict.day)
-#holidays and weekends
-holidays.Sweden <- as.Date(c("2020-04-10","2020-04-13"))
-result$dates_report <- as.Date(result$dates_report)
-holidays <- weekdays(result$dates_report)%in%c("Sunday","Saturday") |c(result$dates_report)%in%c(holidays.Sweden)
-
-holidays.tommorow <- weekdays(result$dates_report + 1)%in%c("Sunday","Saturday") |
-                (result$dates_report+1)%in%c(holidays.Sweden)
-Xhol <- buildXholiday(holidays)
-Xhol.tommrow <- buildXholiday(holidays.tommorow)
-X <- cbind(X, Xhol,  Xhol.tommrow[,1]*X[,dim(X)[2]])
+X <- setup_data(N, Predict.day, data_$dates_report)
+##
+# optim
+##
 loglikProbBB(rep(0,2*dim(X)[2]), data_$death.remain, data_$report.new, X)$loglik
 loglik <- function(x){-loglikProbBB(x, data_$death.remain, data_$report.new, X)$loglik}
 loglik.grad <- function(x){-loglikProbBB(x, data_$death.remain, data_$report.new, X)$grad}
@@ -44,10 +38,6 @@ res <- optim(rep(0,2*dim(X)[2]),
 if(res$convergence != 0){
   cat('convergence issue')
 }
-#res$value
-# 268.6968
-# res$value holidays still matters
-# 241.4545
 
 #not true prob but mean
 p <- dim(X)[2]

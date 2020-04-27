@@ -100,37 +100,27 @@ set_default_theme <- function() {
     )
 }
 
-plot.predReport <- function(result, CI,  Predict.day=Inf){
+plot.predReport <- function(result, CI,  Predict.day){
   
   Reported <- result$detected
   N <- dim(Reported)[2]
   reported_so_far <- c()
   for(i in 1:N){
-    reported_so_far <- c(reported_so_far,max(Reported[i,i:min(i + Predict.day ,N)]))
+    reported_so_far <- c(reported_so_far,Reported[i,min(i + Predict.day ,N)])
   }
   default_theme = set_default_theme()
   pred.data <- data.frame(date = c(result$dates),
                           deaths =reported_so_far,
                           CIl      = CI[1,],
-                          CIu      = CI[2,])
-  if(is.finite(Predict.day)){
-    pred.data$type     = as.factor(c(rep("Klar", N - Predict.day), 
-                                      rep("ej klar", Predict.day)))
-    ggfig <- ggplot(data = pred.data, aes(y = deaths, x = date, fill = type)) +
-      geom_bar( stat="identity") + 
-      default_theme+
-      scale_x_date(date_breaks = "4 day", expand = c(0, 0)) +
-      scale_fill_manual(values=c(  alpha("gray",0.8),"red")) + 
-      geom_errorbar(aes(ymin = CIl, ymax = CIu), width = 1) +
-      guides(fill=guide_legend(title=paste("efter ", Predict.day+1," dagar",sep='')))
-  }else{
-    ggfig <- ggplot(data = pred.data, aes(y = deaths, x = date)) +
-      geom_bar( stat="identity") + 
-      default_theme+
-      scale_x_date(date_breaks = "4 day", expand = c(0, 0)) +
-      scale_fill_manual(values=c(  alpha("gray",0.8))) + 
-      geom_errorbar(aes(ymin = CIl, ymax = CIu), width = 1)
-  }
- 
+                          CIu      = CI[2,],
+                          type     = as.factor(c(rep("Klar", N - Predict.day), 
+                                                 rep("ej klar", Predict.day))))
+  ggfig <- ggplot(data = pred.data, aes(y = deaths, x = date, fill = type)) +
+    geom_bar( stat="identity") + 
+    default_theme+
+    scale_x_date(date_breaks = "4 day", expand = c(0, 0)) +
+    scale_fill_manual(values=c(  alpha("gray",0.8),"red")) + 
+    geom_errorbar(aes(ymin = CIl, ymax = CIu), width = 1) +
+    guides(fill=guide_legend(title=paste("efter ", Predict.day+1," dagar",sep='')))
   return(ggfig)
 }
