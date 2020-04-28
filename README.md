@@ -8,7 +8,7 @@
 En enkel "capture-retain" model för att prediktera hur många dödsfall som skett givet rapportering fram till nu.
 I biologi används det med att man fångar in djur, utan att släppa ut dom, flera gånger. Om man fångar in en betydande del av den underliggande populationen kan skatta populationen med hur sekvensen av skattade faller.
 
-Data
+Modelen är Bayiansk och drar medvetet upp variationen i prediktion intervalen något för att ta hänsyn till icke modelerad osäkrhet.
 
 ## Model
 ### Enklaste Capture retain
