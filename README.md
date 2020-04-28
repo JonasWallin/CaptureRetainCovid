@@ -92,8 +92,8 @@ Finns flera svagheter i modellen:
 
 ### TODO:
 * Just nu görs coverage på för många irrelevanta obsevationer. Gör inte coverage på observationer mer 12 dagar gamla kanske? Kan även ta bort estimeringen för dessa dagar, dessa sannolikheter är ju inte särkilt relevanta.
-* Gör vettigare parametersering med väntevärde och overdispertion parameterar
-* Snyggare prior
+* Gör vettigare parametersering med väntevärde och overdispertion parameterar och gör klarare priors. 
+* Uppdatera Readme
  
 ### data och kod
 Datan är tagen från folkhälsomyndigeten, och koden för att samla in den plus skapande av figurer är tagen från [https://github.com/adamaltmejd/covid](https://github.com/adamaltmejd/covid)

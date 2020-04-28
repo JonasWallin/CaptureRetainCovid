@@ -91,5 +91,4 @@ for(i in 1:(MCMC_sim+burnin-1)){
 CI <-apply(Death_est,2 , function(x){ quantile(x,c(0.05,0.95))})
 fig <- plot.predReport(result, CI, true.day = true.day, ymax=200)
 print(fig)
-rint(fig)
-ggsave(paste('data/dag_',Predict.day+1,'_',max(result$dates),'bM.jpeg',sep=''),fig)
+ggsave(paste('data/dag_',max(result$dates),'bM.jpeg',sep=''),fig)
