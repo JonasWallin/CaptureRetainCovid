@@ -46,6 +46,14 @@ alpha.MCMC <- rep(4, N)
 p <- dim(X)[2]
 Alpha <- matrix(NA, ncol=N, nrow=N)
 Beta <- matrix(NA, ncol=N, nrow=N)
+X_next <- setup_data(N+1, 
+                     maxusage.day, 
+                     c(result$dates_report,result$dates_report[length(result$dates_report)]+1), 
+                     unique.days)
+Reported_fill <- cbind(Reported, matrix(NA, nrow=N,ncol = 1))
+Alpha_next <- matrix(NA, N + 1,N + 1)
+Beta_next  <- matrix(NA, N + 1,N + 1)
+pred_next <- matrix(NA, nrow=MCMC_sim, ncol=N)
 for(i in 1:(MCMC_sim+burnin-1)){
   if(i%%100==0){
     cat('*')
@@ -86,6 +94,15 @@ for(i in 1:(MCMC_sim+burnin-1)){
   if(i >= burnin){
     Thetas[i-burnin + 1,] <-  MH_obj$theta
     Death_est[i-burnin + 1,]  <-res$deaths
+    Alpha_next[upper.tri(Alpha_next,diag=T)] <- exp(X_next%*%beta_1)
+    Beta_next[upper.tri(Beta_next,diag=T)]   <- exp(X_next%*%beta_2)
+    Reported_sample <-fill.ReportBB(res$deaths,  
+                                    Alpha_next[1:dim(Reported_fill)[1],1:dim(Reported_fill)[2]],
+                                    Beta_next[1:dim(Reported_fill)[1],1:dim(Reported_fill)[2]], 
+                                    Reported_fill,
+                                    maxusage.day = maxusage.day)
+    pred_next[i-burnin + 1,] <-Reported_sample[,dim(Reported)[2]+1]
+    
   }
 }
 CI <-apply(Death_est,2 , function(x){ quantile(x,c(0.05,0.95))})
@@ -105,3 +122,9 @@ hist(Death_est[,dim(Death_est)[2]-2],
      probability = T,
      main=paste('döda ',result$dates[dim(Death_est)[2]-2],sep=""))
 dev.off()
+
+CI_pred <-apply(pred_next,2 , function(x){ quantile(x,c(0.05,0.95))})
+fig <- plot.predReport(result, CI_pred, true.day = true.day, ymax=200)
+fig <- fig +  ggtitle(paste("prediktion för rapport ",result$dates[length(result$dates)]+1,sep=""))
+ggsave(paste('data/rapport_',max(result$dates),'bM.jpeg',sep=''),fig)
+print(data.frame(date= result$dates, CI_l = t(CI_pred)[,1], CI_u = t(CI_pred)[,2]))

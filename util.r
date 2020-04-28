@@ -82,18 +82,23 @@ sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, 
 #
 #
 ##
-fill.ReportBB <- function(deaths, Alpha, Beta, Reported){
+fill.ReportBB <- function(deaths, Alpha, Beta, Reported, maxusage.day){
   N <- length(deaths)
   N_2 <- dim(Alpha)[2]
   for(i in 1:N){
-    Alpha_i         = Alpha[i,i:N_2]
-    Beta_i          = Beta[i,i:N_2]
-    Reported_i  = Reported[i,i:N_2]
-    index = is.na(Reported_i)==T 
-    for(j in min(which(index)):length(Reported_i)){
-      p <- rbeta(1, Alpha_i[j], Beta_i[j])
-      Reported_i[j] <- rbinom(1, size=deaths[i] - Reported_i[j-1], prob = p) + Reported_i[j-1]
-    }
+      Alpha_i         = Alpha[i,i:N_2]
+      Beta_i          = Beta[i,i:N_2]
+      Reported_i  = Reported[i,i:N_2]
+      index = is.na(Reported_i)==T 
+      for(j in min(which(index)):length(Reported_i)){
+        p <- rbeta(1, Alpha_i[j], Beta_i[j])
+        
+        if(i> maxusage.day){
+          Reported_i[j] <- rbinom(1, size=deaths[i] - Reported_i[j-1], prob = p) + Reported_i[j-1]
+        }else{
+        Reported_i[j] <- Reported_i[j-1]
+        }
+      }
     Reported[i,i:N_2] = Reported_i
   }
   return(Reported)

@@ -1,9 +1,12 @@
 # Capture retain model för dödstal
 
 
+Preditktion för atnatal döda:
 ![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_2020-04-27bM.jpeg)
+fördelning för dagar:
 ![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_2020-04-27_hist1bM.jpeg)
-
+Vad som förväntas rapporteras nästa dag:
+![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/rapport_2020-04-28bM.jpeg)
 
 
 
