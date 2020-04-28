@@ -92,3 +92,16 @@ CI <-apply(Death_est,2 , function(x){ quantile(x,c(0.05,0.95))})
 fig <- plot.predReport(result, CI, true.day = true.day, ymax=200)
 print(fig)
 ggsave(paste('data/dag_',max(result$dates),'bM.jpeg',sep=''),fig)
+jpeg(paste('data/dag_',max(result$dates),'_hist1','bM.jpeg',sep=''))
+par(mfrow=c(1,2))
+hist(Death_est[,dim(Death_est)[2]-1],
+     xlim=c(0,200),
+     breaks=100, 
+     probability = T, 
+     main=paste('döda ',result$dates[dim(Death_est)[2]-1],sep=""))
+hist(Death_est[,dim(Death_est)[2]-2],
+     xlim=c(0,200),
+     breaks=100, 
+     probability = T,
+     main=paste('döda ',result$dates[dim(Death_est)[2]-2],sep=""))
+dev.off()

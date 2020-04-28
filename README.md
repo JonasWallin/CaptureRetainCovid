@@ -2,6 +2,8 @@
 
 
 ![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_2020-04-27bM.jpeg)
+![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_2020-04-27_hist1bM.jpeg)
+
 
 
 
