@@ -1,7 +1,14 @@
 # Capture retain model för dödstal
 
-En enkel "capture-retain" model för att prediktera hur många dödsfall kommer vara rapporterad x dagar i framtiden givet att dagen paserat. 
+
+![Image description](https://github.com/JonasWallin/CaptureRetainCovid/raw/master/data/dag_2020-04-27bM.jpeg)
+
+
+
+En enkel "capture-retain" model för att prediktera hur många dödsfall som skett givet rapportering fram till nu.
 I biologi används det med att man fångar in djur, utan att släppa ut dom, flera gånger. Om man fångar in en betydande del av den underliggande populationen kan skatta populationen med hur sekvensen av skattade faller.
+
+Data
 
 ## Model
 ### Enklaste Capture retain
@@ -82,8 +89,11 @@ Finns flera svagheter i modellen:
 * Finns ingen förändring av parameterna över tiden, om rapportering ändras kommer modellen inte längre vara vettig.
 * Finns säkert ytterligare koppling till rapportering och antalet döda. Man kan anta att om antalet döda dubblas så ändras sannolikheten att dom rapporteras detta gör förnävarande inte eftersom antalelt dödsfall ligger inom samma range.
 * Det finns säkert flera olika typer av dödsfall som t.ex. från sjukvård mot ålderdomshem. Detta tar modellen heller inte hänsyn till.
-* En Bayesiansk variant som tar hänsyn parameter osäkerheten hade nog inte skadat heller.
 
+### TODO:
+* Just nu görs coverage på för många irrelevanta obsevationer. Gör inte coverage på observationer mer 12 dagar gamla kanske? Kan även ta bort estimeringen för dessa dagar, dessa sannolikheter är ju inte särkilt relevanta.
+* Gör vettigare parametersering med väntevärde och overdispertion parameterar
+* Snyggare prior
  
 ### data och kod
 Datan är tagen från folkhälsomyndigeten, och koden för att samla in den plus skapande av figurer är tagen från [https://github.com/adamaltmejd/covid](https://github.com/adamaltmejd/covid)

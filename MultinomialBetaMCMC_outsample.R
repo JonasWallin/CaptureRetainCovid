@@ -142,7 +142,7 @@ for(j in start.predict.day:(N_T-1)){
 
 }
 coverage <- matrix(NA, nrow = N_T-1, ncol = N_T-start.predict.day)
-for(j in 1:(N_T-1)){
+for(j in 1:(N_T-2)){
   if(is.null(predicition.list[[j]])==F){
     Quan<-apply(predicition.list[[j]]$samples,c(1,2), quantile,probs=c(0.025,0.975))
     for(k in 1:dim(Quan)[3]){
