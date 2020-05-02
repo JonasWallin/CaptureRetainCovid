@@ -48,8 +48,9 @@ sample.deaths <- function(samples, deaths, P, Reported, alpha, true.day = 0){
 #  Reported - (N x N) matrix of reported deaths cumlative (only upper triangular relevant)
 #  alpha.MCMC    - (N x 1) stepsizes
 #  true.dat  - (int) how many days after recording should one sample
+#  prior     - (function) should  return log of prior density
 ##
-sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, true.day = 0){
+sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, true.day = 0 , prior=NULL){
   
   N <- length(deaths)
   acc <- rep(0,N)
@@ -62,12 +63,19 @@ sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, 
       alpha_i  = alpha_i[index]
       beta_i  = beta_i[index]
       Reported_i  = Reported_i[index]  
-      lik_i <- loglikDeathsGivenProbBB(deaths[i],alpha_i , beta_i, Reported_i) - 0.001*deaths[i]
+      
+      lik_i <- loglikDeathsGivenProbBB(deaths[i],alpha_i , beta_i, Reported_i) 
+      if(is.null(prior)==F)
+        lik_i <- lik_i + prior(deaths[i])
       for(j in 1:samples){
         death_star <- sample((deaths[i]-alpha.MCMC[i]):(deaths[i]+alpha.MCMC[i]), 1)
-        lik_start <- loglikDeathsGivenProbBB(death_star, alpha_i , beta_i, Reported_i)  -0.001*death_star
-        if(log(runif(1)) < lik_start-lik_i){
-          lik_i = lik_start
+        
+        lik_star <- loglikDeathsGivenProbBB(death_star, alpha_i , beta_i, Reported_i) 
+        if(is.null(prior)==F)
+          lik_star <- lik_star + prior(death_star)
+        
+        if(log(runif(1)) < lik_star-lik_i){
+          lik_i = lik_star
           deaths[i] <- death_star
           acc[i] = acc[i] + 1
         }
@@ -532,9 +540,10 @@ loglikDeathsGivenProbBB <- function(death, alpha, beta, report){
 # Predict.day - (int) which day to of reporting to predict
 # sim         - (2 x 1) MCMC samples inner loop and outer loop
 # alpha       - (N x 1) stepsizes
+# prior       - (function) prior for N
 #
 ###
-death.givenParamBB <- function(alpha, beta, Reported,Predict.day = Inf,sim=c(2000,10), alpha.MCMC = NULL){
+death.givenParamBB <- function(alpha, beta, Reported,Predict.day = Inf,sim=c(2000,10), alpha.MCMC = NULL, prior=NULL){
   
   N <- dim(alpha)[1]
   if(is.null(alpha.MCMC))
@@ -545,7 +554,14 @@ death.givenParamBB <- function(alpha, beta, Reported,Predict.day = Inf,sim=c(200
   
   burnin = ceiling(0.3*sim[1])
   for(i in 1:(sim[1] + burnin -1)){
-    res <- sample.deathsBB(sim[2],deaths_est, alpha, beta, Reported, alpha.MCMC,rep.day=Predict.day)
+    res <- sample.deathsBB(sim[2],
+                           deaths_est, 
+                           alpha,
+                           beta, 
+                           Reported, 
+                           alpha.MCMC,
+                           rep.day=Predict.day,
+                           prior= prior)
     deaths_est <- res$deaths
     if(i < burnin){
       alpha.MCMC[res$acc/sim[2] > 0.3] <- alpha.MCMC[res$acc/sim[2] > 0.3] +1
@@ -565,7 +581,7 @@ death.givenParamBB <- function(alpha, beta, Reported,Predict.day = Inf,sim=c(200
 # unique.prob - (int) how many of days shall we have unique probabilites
 ##
 setup_data <- function(N, Predict.day, dates_report, unique.prob=NULL){
-  holidays.Sweden <- as.Date(c("2020-04-10","2020-04-13"))
+  holidays.Sweden <- as.Date(c("2020-04-10","2020-04-13","2020-05-01"))
   X <- buildXdayeffect(N,Predict.day)
   #holidays and weekends
   

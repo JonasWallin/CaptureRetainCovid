@@ -15,6 +15,7 @@ true.day = 5
 start.predict.day = 14# more then unique days
   
 load("result.RData")
+prior <- function(x) {dnbinom(x,size=4,prob=0.035,log=T)}
 Reported = result$detected  
 N <- dim(Reported)[1]
 
@@ -82,7 +83,8 @@ for(i in 1:(MCMC_sim+burnin-1)){
                          Beta, 
                          Reported, 
                          alpha.MCMC, 
-                         true.day = true.day)
+                         true.day = true.day,
+                         prior=prior)
   deaths_est <- res$deaths
   data_ <-newDeaths(deaths_est,Reported,maxusage.day)
   
@@ -130,8 +132,8 @@ fig <- fig  + geom_line(data= roll_average,
                         color='blue')
 print(fig)
 
-ggsave(paste('data/dag_',max(result$dates),'bM.jpeg',sep=''),fig)
-jpeg(paste('data/dag_',max(result$dates),'_hist1','bM.jpeg',sep=''))
+ggsave(paste('data/dag_',max(result$dates),'bM_prior.jpeg',sep=''),fig)
+jpeg(paste('data/dag_',max(result$dates),'_hist1','bM_prior.jpeg',sep=''))
 par(mfrow=c(1,2))
 hist(Death_est[,dim(Death_est)[2]-1],
      xlim=c(0,200),
@@ -151,23 +153,23 @@ CI_pred[2,1:true.day]=deaths_est[1:true.day]
 
 fig <- plot.predReport(result, CI_pred, true.day = true.day, ymax=200)
 fig <- fig +  ggtitle(paste("prediktion för rapport ",result$dates[length(result$dates)]+1,sep=""))
-ggsave(paste('data/rapport_',max(result$dates)+1,'bM.jpeg',sep=''),fig)
+ggsave(paste('data/rapport_',max(result$dates)+1,'bM_prior.jpeg',sep=''),fig)
 print(data.frame(date= result$dates, CI_l = t(CI_pred)[,1], CI_u = t(CI_pred)[,2]))
 
 Q <-apply(apply(Death_est,1,cumsum),1,quantile, probs=c(0.05,0.5,0.95))
 
 cumpred <- data.frame(dates = result$dates, deaths = Q[2,], lQ = Q[1,], uQ= Q[3,])
+cumpred_plot <- cumpred[cumpred$dates>"2020-04-20",]
 default_theme = set_default_theme()
-fig1 <-ggplot(cumpred) + 
+fig1 <-ggplot(cumpred_plot) + 
   default_theme+
   geom_line(aes(y = deaths, x = dates)) +
   geom_ribbon(aes(x=dates,ymin = lQ, ymax = uQ), alpha = .2) +
   scale_x_date(date_breaks = "4 day",
-               expand = c(0, 0),
-               limits = as.Date(c('2020-04-20',max(cumpred$dates))))
+               expand = c(0, 0))
 
 print(fig1)
-ggsave(paste('data/cumlativedeaths_',max(result$dates),'bM.jpeg',sep=''),fig1)
+ggsave(paste('data/cumlativedeaths_',max(result$dates),'bM_prior.jpeg',sep=''),fig1)
 
 MAsim <- matrix(NA, nrow= MCMC_sim, ncol = N)
 for(i in 1:N){
@@ -194,4 +196,4 @@ fig <- ggplot(data= roll_average,
                     linetype = "dashed",
                     color='blue') 
   print(fig)
-  ggsave(paste('data/movingaverage_',max(result$dates),'bM.jpeg',sep=''),fig)
+  ggsave(paste('data/movingaverage_',max(result$dates),'bM_prior.jpeg',sep=''),fig)
