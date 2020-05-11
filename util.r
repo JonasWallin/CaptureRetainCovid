@@ -48,7 +48,7 @@ sample.deaths <- function(samples, deaths, P, Reported, alpha, true.day = 0){
 #  Reported - (N x N) matrix of reported deaths cumlative (only upper triangular relevant)
 #  alpha.MCMC    - (N x 1) stepsizes
 #  true.dat  - (int) how many days after recording should one sample
-#  prior     - (function) should  return log of prior density
+#  prior     - (function) should  return log of prior density (use N and i)
 ##
 sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, true.day = 0 , prior=NULL){
   
@@ -66,13 +66,13 @@ sample.deathsBB <- function(samples, deaths, alpha, beta, Reported, alpha.MCMC, 
       
       lik_i <- loglikDeathsGivenProbBB(deaths[i],alpha_i , beta_i, Reported_i) 
       if(is.null(prior)==F)
-        lik_i <- lik_i + prior(deaths[i])
+        lik_i <- lik_i + prior(deaths[i], i)
       for(j in 1:samples){
         death_star <- sample((deaths[i]-alpha.MCMC[i]):(deaths[i]+alpha.MCMC[i]), 1)
         
         lik_star <- loglikDeathsGivenProbBB(death_star, alpha_i , beta_i, Reported_i) 
         if(is.null(prior)==F)
-          lik_star <- lik_star + prior(death_star)
+          lik_star <- lik_star + prior(death_star, i)
         
         if(log(runif(1)) < lik_star-lik_i){
           lik_i = lik_star
@@ -540,7 +540,7 @@ loglikDeathsGivenProbBB <- function(death, alpha, beta, report){
 # Predict.day - (int) which day to of reporting to predict
 # sim         - (2 x 1) MCMC samples inner loop and outer loop
 # alpha       - (N x 1) stepsizes
-# prior       - (function) prior for N
+# prior       - (function) prior for N (needs use N and i)
 #
 ###
 death.givenParamBB <- function(alpha, beta, Reported,Predict.day = Inf,sim=c(2000,10), alpha.MCMC = NULL, prior=NULL){

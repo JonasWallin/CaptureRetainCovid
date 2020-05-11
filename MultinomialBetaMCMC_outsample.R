@@ -6,7 +6,7 @@ set.seed(2)
 source('util.r')
 source('MH.R')
 source('stolen_function.R')
-MCMC_sim <- 15000
+MCMC_sim <- 1500
 burnin_p = 0.5
 deaths_sim <- 10
 maxusage.day = 20 #must be less then N
@@ -114,7 +114,11 @@ for(j in start.predict.day:(N_T-1)){
       Beta_T[upper.tri(Beta_T,diag=T)]   <- exp(X_T%*%beta_2)
       Alpha_T <- Alpha_T[1:dim(Reported_fill)[1],1:dim(Reported_fill)[2]]
       Beta_T  <- Beta_T[1:dim(Reported_fill)[1],1:dim(Reported_fill)[2]]
-      Reported_sample <-fill.ReportBB(res$deaths, Alpha_T,Beta_T, Reported_fill)
+      Reported_sample <-fill.ReportBB(res$deaths, 
+                                      Alpha_T,
+                                      Beta_T, 
+                                      Reported_fill, 
+                                      maxusage.day = maxusage.day)
       Reported_sample[,dim(Reported)[2]+1]
       pred_set[,,i-burnin + 1] <- Reported_sample[,(j+1):dim(Reported_sample)[2]]
     }

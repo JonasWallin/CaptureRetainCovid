@@ -6,7 +6,9 @@ set.seed(2)
 source('util.r')
 source('MH.R')
 source('stolen_function.R')
-MCMC_sim <- 20000
+
+prior <- function(x,i) {dnbinom(x,size=4,prob=0.035,log=T)}
+MCMC_sim <- 2000
 burnin_p = 0.5
 deaths_sim <- 10
 maxusage.day = 20 #must be less then N
@@ -15,7 +17,7 @@ true.day = 5
 start.predict.day = 14# more then unique days
   
 load("result.RData")
-prior <- function(x) {dnbinom(x,size=4,prob=0.035,log=T)}
+prior <- function(x,i) {dnbinom(x,size=4,prob=0.035,log=T)}
 Reported = result$detected  
 N <- dim(Reported)[1]
 
@@ -30,7 +32,7 @@ X <- setup_data(N, maxusage.day, result$dates_report, unique.days)
 # seting up MCMC
 ##
 MH_obj <- MH_setup()
-MH_obj$sigma <- 0.2
+MH_obj$sigma <- 0.1
 MH_obj$theta <- rep(0,2*dim(X)[2])
 
 
