@@ -7,7 +7,7 @@ source('util.r')
 source('MH.R')
 source('stolen_function.R')
 source('./GP/GPutil.R')
-MCMC_sim <- 40000
+MCMC_sim <- 20000
 burnin_p = 0.5
 deaths_sim <- 10
 maxusage.day = 20 #must be less then N
@@ -146,48 +146,43 @@ print(fig)
 ##
 MA <- rep(0, N)
 MaxR <-  apply(Reported,1, max, na.rm=T)
-for(i in 1:N){
-  MA_temp <- 
+for(i in 1:N)
   MA[i] <- mean(MaxR[max(1,i-6):i])
-}
+
 roll_average = data.frame( date =result$dates[1:(N-7)], 
-                           Reported = MA[1:(N-7)] ) 
+                           Reported = MA[1:(N-7)] ,
+                           ReportedO = MaxR[1:(N-7)]) 
 roll_average$cumReported <- cumsum(roll_average$Reported)
-fig <- plot.predReport(result, CI, true.day = true.day, ymax=min(max(CI)+5,200))
+
+CI_med <-apply(Death_est,2 , function(x){ quantile(x,c(0.05,0.5,0.95))})
+fig <- plot.predReport2(result, CI_med, ymax=min(max(CI_med)+5,125))
 fig <- fig  + geom_line(data= roll_average,
                         mapping=aes(y = Reported, x = date),
                         inherit.aes = FALSE,
                         lwd=1.,
                         color='blue')
-fig <- fig  + geom_line(data= data.frame(date =result$dates, 
-                                         int = colMeans(exp(theta_GP))),
-                        mapping=aes(y = int, x = date),
-                        inherit.aes = FALSE,
-                        lwd=1.,
-                        color='black')
+
 print(fig)
 
-ggsave(paste('data/dag_',max(result$dates),'bMGP.jpeg',sep=''),fig)
-jpeg(paste('data/dag_',max(result$dates),'_hist1','bMGP.jpeg',sep=''))
-par(mfrow=c(1,2))
+ggsave(paste('data/traj_dag_',max(result$dates),'bMGP.jpeg',sep=''),fig)
+jpeg(paste('data/histogram_dag_',max(result$dates),'_bMGP.jpeg',sep=''))
 hist(Death_est[,dim(Death_est)[2]-1],
-     xlim=c(0,200),
+     xlim=c(0,100),
      breaks=100, 
      probability = T, 
-     main=paste('döda ',result$dates[dim(Death_est)[2]-1],sep=""))
-hist(Death_est[,dim(Death_est)[2]-2],
-     xlim=c(0,200),
-     breaks=100, 
-     probability = T,
-     main=paste('döda ',result$dates[dim(Death_est)[2]-2],sep=""))
+     xlab='deaths',
+     main=paste('density for deaths ',result$dates[dim(Death_est)[2]-1],sep=""))
 dev.off()
 
-CI_pred <-apply(pred_next,2 , function(x){ quantile(x,c(0.05,0.95))})
-CI_pred[1,1:true.day]=deaths_est[1:true.day]
-CI_pred[2,1:true.day]=deaths_est[1:true.day]
+CI_pred <-apply(pred_next,2 , function(x){ quantile(x,c(0.05,0.5,0.95))})
+  CI_pred[1,1:true.day]=apply(result$detected,1,max, na.rm=T)[1:true.day]
+CI_pred[2,1:true.day]=apply(result$detected,1,max, na.rm=T)[1:true.day]
+CI_pred[3,1:true.day]=apply(result$detected,1,max, na.rm=T)[1:true.day]
 
-fig <- plot.predReport(result, CI_pred, true.day = true.day, ymax=200)
-fig <- fig +  ggtitle(paste("prediktion för rapport ",result$dates[length(result$dates)]+1,sep=""))
+fig <- plot.predReport3(result, CI_pred,  ymax=120)
+fig <- fig +  ggtitle(paste("prediction of new cases ",sep=""))+
+        theme(plot.title = element_text(size=14,hjust=0.5))
+print(fig)
 ggsave(paste('data/rapport_',max(result$dates)+1,'bMGP.jpeg',sep=''),fig)
 print(data.frame(date= result$dates, CI_l = t(CI_pred)[,1], CI_u = t(CI_pred)[,2]))
 
@@ -240,4 +235,4 @@ x11()
 par(mfrow=c(2,1))
 plot(exp(theta_GP[,N]))
 plot(tau_vec)
-save(list = ls(all.names = TRUE), file = "GP_prior.RData", envir = .GlobalEnv)
+#save(list = ls(all.names = TRUE), file = "GP_prior.RData", envir = .GlobalEnv)

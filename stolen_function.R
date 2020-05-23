@@ -59,6 +59,20 @@ load_fhm <- function(f) {
 }
 
 
+load_fhm_region <- function(f) {
+  require(data.table)
+  require(readxl)
+  
+  DT <- data.table((
+    read_excel(path = f, sheet = 4, col_types = c("text", "numeric","numeric","numeric","numeric"))
+  ))
+  
+  setnames(DT, c("Region", "TA","TAp","TI","TD"))
+  
+
+  return(as.data.frame(DT))
+}
+
 can_be_numeric <- function(x) {
   # Check if vector can be converted to numeric
   stopifnot(is.atomic(x) || is.list(x)) # check if x is a vector
@@ -135,5 +149,72 @@ plot.predReport <- function(result, CI,  true.day=0, ymax = NULL){
   {
     ggfig <- ggfig + coord_cartesian(ylim = c(0,ymax))
   }
+  return(ggfig)
+}
+#'
+#' Here we remove the fixed day and only display reported days
+#' CI and median 
+#' CI  - (3 x N) lower CI, median, upper CI,
+#' 
+plot.predReport2 <- function(result, CI,  ymax = NULL){
+  
+  Reported <- result$detected
+  N <- dim(Reported)[2]
+  reported_so_far <- c()
+  for(i in 1:N){
+    reported_so_far <- c(reported_so_far,max(Reported[i,i:N]))
+  }
+  default_theme = set_default_theme()
+  pred.data <- data.frame(date = c(result$dates),
+                          deaths =reported_so_far,
+                          CIl      = CI[1,],
+                          median   = CI[2,],
+                          CIu      = CI[3,])
+
+    ggfig <- ggplot(data = pred.data, aes(y = deaths, x = date)) +
+      geom_bar( stat="identity") + 
+      default_theme+
+      scale_x_date(date_breaks = "4 day", expand = c(0, 0)) +
+      scale_fill_manual(values=c(  alpha("gray",0.8))) + 
+      geom_errorbar(aes(ymin = CIl, ymax = CIu), width = 1)
+    ggfig <- ggfig  + geom_line(
+                            mapping=aes(y = median, x = date),
+                            lwd=1.,
+                            color='black')+ scale_color_discrete(name = "Y series", labels = c("Y2"))
+  if(is.null(ymax)==F)
+    ggfig <- ggfig + coord_cartesian(ylim = c(0,ymax))
+  
+  return(ggfig)
+}
+
+#'
+#' Here we remove the fixed day and only display reported days
+#' CI and median 
+#' CI  - (3 x N) lower CI, median, upper CI,
+#' 
+plot.predReport3 <- function(result, CI,  ymax = NULL){
+  
+  Reported <- result$detected
+  N <- dim(Reported)[2]
+  reported_so_far <- c()
+  for(i in 1:N){
+    reported_so_far <- c(reported_so_far,max(Reported[i,i:N]))
+  }
+  default_theme = set_default_theme()
+  pred.data <- data.frame(date = c(result$dates),
+                          reports =reported_so_far,
+                          CIl      = CI[1,],
+                          median   = CI[2,],
+                          CIu      = CI[3,])
+  
+  ggfig <- ggplot(data = pred.data, aes(y = reports, x = date)) +
+    geom_bar( stat="identity") + 
+    default_theme+
+    scale_x_date(date_breaks = "4 day", expand = c(0, 0)) +
+    scale_fill_manual(values=c(  alpha("gray",0.8))) + 
+    geom_errorbar(aes(ymin = CIl, ymax = CIu), width = 1)
+  if(is.null(ymax)==F)
+    ggfig <- ggfig + coord_cartesian(ylim = c(0,ymax))
+  
   return(ggfig)
 }

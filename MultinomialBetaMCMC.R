@@ -29,7 +29,7 @@ X <- setup_data(N, maxusage.day, result$dates_report, unique.days)
 # seting up MCMC
 ##
 MH_obj <- MH_setup()
-MH_obj$sigma <- 0.2
+MH_obj$sigma <- 0.1
 MH_obj$theta <- rep(0,2*dim(X)[2])
 
 
@@ -116,13 +116,14 @@ print(fig)
 MA <- rep(0, N)
 MaxR <-  apply(Reported,1, max, na.rm=T)
 for(i in 1:N){
-  MA_temp <- 
   MA[i] <- mean(MaxR[max(1,i-6):i])
 }
 roll_average = data.frame( date =result$dates[1:(N-7)], 
-                           Reported = MA[1:(N-7)] ) 
+                           Reported = MA[1:(N-7)] ,
+                           observed = MaxR[1:(N-7)]) 
 roll_average$cumReported <- cumsum(roll_average$Reported)
-fig <- plot.predReport(result, CI, true.day = true.day, ymax=min(max(CI)+5,200))
+CI_med <-apply(Death_est,2 , function(x){ quantile(x,c(0.05,0.5,0.95))})
+fig <- plot.predReport2(result, CI_med, ymax=min(max(CI_med)+5,125))
 fig <- fig  + geom_line(data= roll_average,
                         mapping=aes(y = Reported, x = date),
                         inherit.aes = FALSE,

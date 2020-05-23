@@ -12,7 +12,7 @@ deaths_sim <- 10
 maxusage.day = 20 #must be less then N
 unique.days  = 5
 true.day = 5
-start.predict.day = 28# more then unique days
+start.predict.day = 18# more then unique days
   
 load("result.RData")
 Reported_T = result$detected  
